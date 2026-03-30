@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">UnlockSelfie</string>
+    <string name="app_subtitle">Silent front camera capture</string>
+    <string name="enable_monitoring">Enable Monitoring</string>
+    <string name="checking_permissions">Checking permissions…</string>
+    <string name="permissions_granted">✓ All permissions granted</string>
+    <string name="permissions_missing">⚠ Permissions required</string>
+    <string name="save_location">Save Location</string>
+    <string name="no_directory_selected">Using default directory</string>
+    <string name="save_dir_label">📁 %1$s</string>
+    <string name="choose_directory">Choose Directory</string>
+    <string name="trigger_mode">Capture Trigger</string>
+    <string name="trigger_on_unlock">📱 On Phone Unlock</string>
+    <string name="trigger_on_wrong_password">🔒 On Incorrect Password</string>
+    <string name="auto_start">Auto-Start on Boot</string>
+    <string name="auto_start_desc">Start monitoring when phone turns on</string>
+    <string name="monitoring_enabled">Monitoring enabled!</string>
+    <string name="monitoring_disabled">Monitoring disabled.</string>
+    <string name="camera_permission_required">Camera permission is required to capture selfies.</string>
+    <string name="admin_enabled">Device admin enabled. Wrong password capture active.</string>
+    <string name="admin_required">Device admin permission is required for wrong password detection.</string>
+    <string name="admin_active">✓ Device admin active</string>
+    <string name="admin_inactive">⚠ Device admin not active — tap to enable</string>
+    <string name="admin_explanation">UnlockSelfie needs device admin access to detect incorrect password attempts and capture a selfie.</string>
+    <string name="notification_text">Monitoring active (deep sleep when idle)</string>
+    <string name="notification_channel_name">UnlockSelfie Service</string>
+    <string name="notification_channel_desc">Background selfie capture service</string>
+    <string name="deep_sleep_info">💤 Deep sleep mode: service shuts down after each capture to save battery</string>
+</resources>
