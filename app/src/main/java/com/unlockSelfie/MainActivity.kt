@@ -4,7 +4,6 @@ import android.Manifest
 import android.app.Activity
 import android.app.admin.DevicePolicyManager
 import android.content.ComponentName
-import android.content.ContentResolver
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -18,7 +17,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.unlockSelfie.databinding.ActivityMainBinding
-import java.io.File
 
 class MainActivity : AppCompatActivity() {
 
@@ -174,21 +172,26 @@ class MainActivity : AppCompatActivity() {
         openDirectoryPicker.launch(intent)
     }
 
+    @Suppress("DEPRECATION") // Environment.getExternalStorageDirectory() is the only reliable
+    // way to resolve a "primary:" document URI to a real file-system path.
     private fun getPathFromUri(uri: Uri): String? {
         return try {
-            // Take persistable permission so we can access the directory across reboots
+            // Persist URI access rights across app restarts and reboots,
+            // which is critical for the auto-start on boot feature.
             contentResolver.takePersistableUriPermission(
                 uri,
                 Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
             )
-            // Resolve to a file-system path for CameraX OutputFileOptions
+            // Resolve to a file-system path for CameraX OutputFileOptions.
+            // On primary storage we map "primary:<subPath>" to the real path.
+            // For secondary volumes or unsupported URIs, fall back to app-specific
+            // external storage so scoped storage constraints are respected.
             val docId = DocumentsContract.getTreeDocumentId(uri)
             if (docId != null && docId.startsWith("primary:")) {
                 val subPath = docId.removePrefix("primary:")
                 val base = Environment.getExternalStorageDirectory().absolutePath
                 if (subPath.isEmpty()) base else "$base/$subPath"
             } else {
-                // Fallback to app-specific external storage for non-primary or unsupported URIs
                 getExternalFilesDir(null)?.absolutePath
             }
         } catch (e: Exception) {

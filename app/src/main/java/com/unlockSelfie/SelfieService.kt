@@ -41,6 +41,7 @@ class SelfieService : Service(), LifecycleOwner {
         private const val TAG = "SelfieService"
         // Deep sleep timeout: stop service after 30s of idle
         private const val DEEP_SLEEP_TIMEOUT_MS = 30_000L
+        private const val CAMERA_WARMUP_DELAY_MS = 500L
     }
 
     private lateinit var lifecycleRegistry: LifecycleRegistry
@@ -97,7 +98,7 @@ class SelfieService : Service(), LifecycleOwner {
         try {
             val pm = getSystemService(Context.POWER_SERVICE) as PowerManager
             wakeLock?.release()
-            wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "UnlockSelfie:Capture")
+            wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "com.unlockSelfie:Capture")
             wakeLock?.acquire(15_000L) // 15 second max
         } catch (e: Exception) {
             Log.e(TAG, "Failed to acquire wake lock", e)
@@ -125,7 +126,7 @@ class SelfieService : Service(), LifecycleOwner {
                 )
 
                 // Small delay for camera warmup
-                handler.postDelayed({ takePhoto() }, 500)
+                handler.postDelayed({ takePhoto() }, CAMERA_WARMUP_DELAY_MS)
             } catch (e: Exception) {
                 Log.e(TAG, "Camera binding failed", e)
                 isCapturing = false
@@ -140,7 +141,9 @@ class SelfieService : Service(), LifecycleOwner {
         }
 
         val saveDir = File(Prefs.getSaveDir(this))
-        if (!saveDir.exists()) saveDir.mkdirs()
+        if (!saveDir.exists() && !saveDir.mkdirs()) {
+            Log.e(TAG, "Failed to create save directory: ${saveDir.absolutePath}")
+        }
 
         val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
         val photoFile = File(saveDir, "selfie_$timestamp.jpg")
