@@ -77,8 +77,8 @@ class SelfieService : Service(), LifecycleOwner {
         // Start as foreground
         startForeground(NOTIFICATION_ID, buildNotification())
 
-        lifecycleRegistry.currentState = Lifecycle.State.STARTED
-        lifecycleRegistry.currentState = Lifecycle.State.RESUMED
+        lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START)
+        lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
 
         // Cancel any pending deep sleep
         handler.removeCallbacks(deepSleepRunnable)
@@ -97,7 +97,7 @@ class SelfieService : Service(), LifecycleOwner {
         try {
             val pm = getSystemService(Context.POWER_SERVICE) as PowerManager
             wakeLock?.release()
-            wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "UnlockSelfie::WakeLock")
+            wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "UnlockSelfie:Capture")
             wakeLock?.acquire(15_000L) // 15 second max
         } catch (e: Exception) {
             Log.e(TAG, "Failed to acquire wake lock", e)
@@ -221,7 +221,7 @@ class SelfieService : Service(), LifecycleOwner {
     override fun onDestroy() {
         handler.removeCallbacks(deepSleepRunnable)
         releaseCamera()
-        lifecycleRegistry.currentState = Lifecycle.State.DESTROYED
+        lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
         try {
             wakeLock?.release()
         } catch (e: Exception) { /* already released */ }

@@ -4,12 +4,14 @@ import android.Manifest
 import android.app.Activity
 import android.app.admin.DevicePolicyManager
 import android.content.ComponentName
+import android.content.ContentResolver
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
+import android.provider.DocumentsContract
 import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -174,11 +176,19 @@ class MainActivity : AppCompatActivity() {
 
     private fun getPathFromUri(uri: Uri): String? {
         return try {
-            val path = uri.path
-            if (path != null && path.contains("primary:")) {
-                val subPath = path.substringAfter("primary:")
-                "${Environment.getExternalStorageDirectory().absolutePath}/$subPath"
+            // Take persistable permission so we can access the directory across reboots
+            contentResolver.takePersistableUriPermission(
+                uri,
+                Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+            )
+            // Resolve to a file-system path for CameraX OutputFileOptions
+            val docId = DocumentsContract.getTreeDocumentId(uri)
+            if (docId != null && docId.startsWith("primary:")) {
+                val subPath = docId.removePrefix("primary:")
+                val base = Environment.getExternalStorageDirectory().absolutePath
+                if (subPath.isEmpty()) base else "$base/$subPath"
             } else {
+                // Fallback to app-specific external storage for non-primary or unsupported URIs
                 getExternalFilesDir(null)?.absolutePath
             }
         } catch (e: Exception) {
