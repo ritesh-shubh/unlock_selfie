@@ -39,7 +39,7 @@ echo This repository contains an Android app. Build APK with Gradle.
 echo.
 type README.txt
 pause
-'@ | Set-Content -Path $cmdFile -NoNewline
+'@ | Set-Content -Path $cmdFile
 
     $sedFile = Join-Path $tmpDir "unlock_selfie.sed"
     @"
@@ -75,9 +75,9 @@ SourceFiles0=$tmpDir
 FILE0=README.txt
 FILE1=run.cmd
 FILE2=app_icon.png
-"@ | Set-Content -Path $sedFile -NoNewline
+"@ | Set-Content -Path $sedFile
 
-    & iexpress /N $sedFile | Out-Null
+    & iexpress /N $sedFile
 
     if (-not (Test-Path $outExe)) {
         throw "EXE was not created: $outExe"
